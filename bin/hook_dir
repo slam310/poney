@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source $( poney --prefix )/lib/helpers
+
+TYPE=$( basename $0 )
+
+for hook in $( find $( pwd )/.git/hooks/$TYPE.d/ -type f -o -d 1 ); do
+  colorize "running <comment>$TYPE</comment> hook <comment>$( basename $hook )</comment>"
+  status=$hook
+
+  if [status = 1]; then
+    exit 1
+  fi
+done

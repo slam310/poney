@@ -1,0 +1,121 @@
+#!/bin/bash
+
+__DIR__="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ "$1" = "--prefix" ]; then
+  ( dirname $__DIR__ )
+  exit 0
+fi
+
+source "$__DIR__/../lib/helpers"
+
+function install {
+  require_git
+  copy_parameters
+  composer_install
+  database_install
+  assets_install
+  hooks_install
+}
+
+function require_git {
+  if [ ! -d $( pwd )/.git ]; then
+    echo "$0 must be run at the root of a git repository"
+    exit 1
+  fi
+}
+
+function copy_parameters {
+  step "Copy <comment>parameters.yml</comment> from <comment>parameters.yml.sample</comment>"
+  cp app/config/parameters.yml.sample app/config/parameters.yml
+}
+
+function composer_install {
+  if [[ ! `which composer.phar` && ! `which composer` && ! -f 'composer.phar' ]]; then
+      step "Download composer"
+      curl -s http://getcomposer.org/installer | php
+  fi
+
+  if [[ `which composer` ]]; then
+      step "Run <comment>composer install</comment>" composer install
+  else
+      step "Run <comment>php composer.phar install</comment>" php composer.phar install
+  fi
+}
+
+function composer_update {
+  if [[ ! `which composer.phar` && ! `which composer` && ! -f 'composer.phar' ]]; then
+      step "Download composer"
+      curl -s http://getcomposer.org/installer | php
+  fi
+
+  if [[ `which composer` ]]; then
+      step "Run <comment>composer update</comment>" composer update
+  else
+      step "Run <comment>php composer.phar update</comment>" php composer.phar update
+  fi
+}
+
+function database_install {
+  step "Create database" php app/console doctrine:database:create
+  step "Drop schema" php app/console doctrine:schema:drop --force
+  step "Create schema" php app/console doctrine:schema:create
+  step "Load fixtures" php app/console doctrine:fixtures:load
+}
+
+function assets_install {
+  step "Install assets with symlink" php app/console assets:install web/ --symlink
+}
+
+function hooks_install {
+  if [[ -d 'bin/hooks' ]]; then
+      writeln "Installing <comment>hooks</comment>"
+
+      for hooks in $(find bin/hooks -type d -d 1); do
+          TYPE=$(basename $hooks)
+          writeln "Install <comment>$TYPE</comment> hooks inside <comment>.git/hooks/$TYPE.d</comment>"
+          cp $__DIR__/hook_dir .git/hooks/$TYPE
+          chmod +x .git/hooks/$TYPE
+          rm .git/hooks/$TYPE.d
+          ln -s ../../$hooks .git/hooks/$TYPE.d
+      done
+  fi
+}
+
+function update {
+  require_git
+  database_install
+  assets_install
+}
+
+function vendors {
+  require_git
+  composer_update
+}
+
+function show_help {
+  writeln "<comment>Usage:</comment>"
+  writeln " $( colorize "<info>$(basename $0) command</info>" )"
+  echo
+  writeln "<comment>Available Command:</comment>"
+  help_show_argument "<info>install</info>" "Install vendors, create database, ..."
+  help_show_argument "<info>update</info>" " Update database"
+  help_show_argument "<info>vendors</info>" "Update vendors"
+}
+
+case $1 in
+  install)
+    install
+    ;;
+  update)
+    update
+    ;;
+  vendors)
+    vendors
+    ;;
+  *)
+    show_help
+    ;;
+esac
+
+exit $?
