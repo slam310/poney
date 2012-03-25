@@ -1,0 +1,46 @@
+#!/bin/bash
+
+source $( poney --prefix )/lib/helpers
+
+LIST=$(git status --porcelain | grep -E '^[^D\?][^D\?].*\.php$' | awk '{print $2}')
+
+writeln "<comment>PHPCS - pre-commit hook style checker</comment>"
+
+ERROR=false
+
+for file in $LIST
+do
+    report=$(phpcs $file --report=csv 2>&1)
+
+    IFS=$'\n'
+
+    ERROR_BUFFER=""
+    for i in ${report[@]}; do
+        #echo $report
+        echo $i|grep -q "File,Line,Column,Type,Message,Source,Severity"
+        if [[ $? -eq 1 ]]; then
+
+            line=$(echo $i | cut -d "," -f2)
+            msg=$(echo $i | cut -d "," -f5 | sed -e 's/^"\(.*\)"$/\1/')
+
+            ERROR_BUFFER="${ERROR_BUFFER}<comment>${line}</comment>: ${msg}\n"
+        fi
+    done
+
+    if [[ $ERROR_BUFFER ]]; then
+        writeln "<error>Style error found in file:</error> $file"
+        writeln "$ERROR_BUFFER"
+        echo
+        ERROR=true
+    fi
+done
+
+if [ $ERROR = true ]; then
+    writeln "<error>Can't commit, fix style errors first</error>"
+    exit 1
+else
+    if (( "${#LIST[@]}" > 1 )); then
+        writeln "<info>No style errors were found.</info>"
+    fi
+    exit 0
+fi
