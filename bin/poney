@@ -101,6 +101,7 @@ function show_help {
   help_show_argument "<info>install</info>" "Install vendors, create database, ..."
   help_show_argument "<info>update</info>" " Update database"
   help_show_argument "<info>vendors</info>" "Update vendors"
+  help_show_argument "<info>hooks</info>" "Install hooks"
 }
 
 case $1 in
@@ -112,6 +113,9 @@ case $1 in
     ;;
   vendors)
     vendors
+    ;;
+  hooks)
+    hooks_install
     ;;
   *)
     show_help
