@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $( poney --prefix )/lib/helpers
+source $( project --prefix )/lib/helpers
 
 LIST=$(git status --porcelain | grep -E '^[^D\?][^D\?].*\.php$' | awk '{print $2}')
 ERRORS=false

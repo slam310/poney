@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $( poney --prefix )/lib/helpers
+source $( project --prefix )/lib/helpers
 
 TYPE=$( basename $0 )
 
