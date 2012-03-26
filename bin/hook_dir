@@ -7,10 +7,10 @@ TYPE=$( basename $0 )
 for hook in $( find $( pwd )/.git/hooks/$TYPE.d/ -type f -o -d 1 ); do
   colorize "running <comment>$TYPE</comment> hook <comment>$( basename $hook )</comment>"
 
-  sh $hook
+  eval $hook
 
   status=$?
-echo $status
+
   if [ $status -eq 1 ]; then
     exit 1
   fi
