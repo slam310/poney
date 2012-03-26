@@ -12,7 +12,8 @@ source "$__DIR__/../lib/helpers"
 function install {
   require_git
   copy_parameters
-  composer_install
+  cache
+  vendor install
   database_install
   assets_install
   hooks_install
@@ -26,33 +27,29 @@ function require_git {
 }
 
 function copy_parameters {
-  step "Copy <comment>parameters.yml</comment> from <comment>parameters.yml.sample</comment>"
-  cp app/config/parameters.yml.sample app/config/parameters.yml
-}
-
-function composer_install {
-  if [[ ! `which composer.phar` && ! `which composer` && ! -f 'composer.phar' ]]; then
-      step "Download composer"
-      curl -s http://getcomposer.org/installer | php
-  fi
-
-  if [[ `which composer` ]]; then
-      step "Run <comment>composer install</comment>" composer install
-  else
-      step "Run <comment>php composer.phar install</comment>" php composer.phar install
+  if [ -f 'app/config/parameters.yml.sample' ]; then
+    step "Copy <comment>parameters.yml</comment> from <comment>parameters.yml.sample</comment>"
+    cp app/config/parameters.yml.sample app/config/parameters.yml
+  elif [ -f 'app/config/parameters.ini.sample' ]; then
+    step "Copy <comment>parameters.ini</comment> from <comment>parameters.ini.sample</comment>"
+    cp app/config/parameters.ini.sample app/config/parameters.ini
   fi
 }
 
-function composer_update {
-  if [[ ! `which composer.phar` && ! `which composer` && ! -f 'composer.phar' ]]; then
-      step "Download composer"
-      curl -s http://getcomposer.org/installer | php
-  fi
+function vendor {
+  if [ -f 'composer.json' ]; then
+    if [[ ! `which composer.phar` && ! `which composer` && ! -f 'composer.phar' ]]; then
+        step "Download composer"
+        curl -s http://getcomposer.org/installer | php
+    fi
 
-  if [[ `which composer` ]]; then
-      step "Run <comment>composer update</comment>" composer update
-  else
-      step "Run <comment>php composer.phar update</comment>" php composer.phar update
+    if [[ `which composer` ]]; then
+        step "Run <comment>composer $1</comment>" composer $1
+    else
+        step "Run <comment>php composer.phar $1</comment>" php composer.phar $1
+    fi
+  elif [ -f 'deps' ]; then
+    step "Run php bin/vendors $1" php bin/vendors $1
   fi
 }
 
@@ -82,15 +79,32 @@ function hooks_install {
   fi
 }
 
+function cache {
+  USER=$(whoami)
+  APACHE_USER=$(ps axho user,comm|grep -E "httpd|apache"|uniq|grep -v "root"|awk 'END {print $1}')
+
+  if [ -d app/cache ]
+  then
+    writeln "Enter your password for chmod cache and logs"
+    sudo chmod -R 7777 app/cache app/logs
+    sudo chmod +a "$USER allow delete,write,append,file_inherit,directory_inherit" app/cache app/logs
+    sudo chmod +a "$APACHE_USER allow delete,write,append,file_inherit,directory_inherit" app/cache app/logs
+
+    step "app/cache & app/logs been properly chmod'ed for $USER and $APACHE_USER"
+  fi
+}
+
 function update {
   require_git
+  cache
   database_install
   assets_install
 }
 
 function vendors {
   require_git
-  composer_update
+  cache
+  vendor update
 }
 
 function show_help {
@@ -101,6 +115,7 @@ function show_help {
   help_show_argument "<info>install</info>" "Install vendors, create database, ..."
   help_show_argument "<info>update</info>" " Update database"
   help_show_argument "<info>vendors</info>" "Update vendors"
+  help_show_argument "<info>hooks</info>" "Install hooks"
 }
 
 case $1 in
@@ -112,6 +127,9 @@ case $1 in
     ;;
   vendors)
     vendors
+    ;;
+  hooks)
+    hooks_install
     ;;
   *)
     show_help
