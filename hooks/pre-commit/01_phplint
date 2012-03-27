@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source $( project --prefix )/lib/helpers
+project_dir=$(git config project.dir)
+
+source $project_dir/../lib/helpers
 
 LIST=$(git status --porcelain | grep -E '^[^D\?][^D\?].*\.php$' | awk '{print $2}')
 ERRORS=false

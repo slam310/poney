@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source $( project --prefix )/lib/helpers
+project_dir=$(git config project.dir)
+
+source $project_dir/../lib/helpers
 
 TYPE=$( basename $0 )
 

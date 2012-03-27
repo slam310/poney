@@ -2,21 +2,22 @@
 
 __DIR__="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ "$1" = "--prefix" ]; then
-  ( dirname $__DIR__ )
-  exit 0
-fi
 
 source "$__DIR__/../lib/helpers"
 
 function install {
   require_git
+  config
   copy_parameters
   cache
   vendor install
   database_install
   assets_install
   hooks_install
+}
+
+function config {
+    git config project.dir $(dirname $0)
 }
 
 function require_git {
@@ -65,6 +66,7 @@ function assets_install {
 }
 
 function hooks_install {
+  config
   if [[ -d 'bin/hooks' ]]; then
       writeln "Installing <comment>hooks</comment>"
 
