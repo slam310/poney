@@ -58,7 +58,7 @@ function database_install {
   step "Create database" php app/console doctrine:database:create
   step "Drop schema" php app/console doctrine:schema:drop --force
   step "Create schema" php app/console doctrine:schema:create
-  step "Load fixtures" php app/console doctrine:fixtures:load
+  fixtures
 }
 
 function assets_install {
@@ -75,7 +75,9 @@ function hooks_install {
           writeln "Install <comment>$TYPE</comment> hooks inside <comment>.git/hooks/$TYPE.d</comment>"
           cp $__DIR__/hook_dir .git/hooks/$TYPE
           chmod +x .git/hooks/$TYPE
-          rm .git/hooks/$TYPE.d
+          if [ -d .git/hooks/$TYPE.d ]; then
+            rm .git/hooks/$TYPE.d
+          fi
           ln -s ../../$hooks .git/hooks/$TYPE.d
       done
   fi
@@ -98,7 +100,6 @@ function cache {
 
 function update {
   require_git
-  cache
   database_install
   assets_install
 }
@@ -107,6 +108,11 @@ function vendors {
   require_git
   cache
   vendor update
+  assets_install
+}
+
+function fixtures {
+  step "Load fixtures" php app/console doctrine:fixtures:load --purge-with-truncate
 }
 
 function show_help {
@@ -118,6 +124,7 @@ function show_help {
   help_show_argument "<info>update</info>" " Update database"
   help_show_argument "<info>vendors</info>" "Update vendors"
   help_show_argument "<info>hooks</info>" "Install hooks"
+  help_show_argument "<info>fixtures</info>" "Reload fixtures"
 }
 
 case $1 in
@@ -132,6 +139,9 @@ case $1 in
     ;;
   hooks)
     hooks_install
+    ;;
+  fixtures)
+    fixtures
     ;;
   *)
     show_help
