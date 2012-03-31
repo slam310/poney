@@ -2,6 +2,7 @@
 
 __DIR__="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+LOG_FILE="app/logs/project.log"
 
 source "$__DIR__/../lib/helpers"
 
