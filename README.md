@@ -29,7 +29,9 @@ Update vendors of a project
 
     $ project vendors
 
-Install git hooks (you need to create directories named after git hooks inside bin/hooks directory, ie: bin/hooks/pre-commit/phplint)
+Install git hooks (you need to create directories named after git hooks inside bin/hooks directory, ie: bin/hooks/pre-commit/phplint).
+
+I bundle this script with 2 hooks i used on each of my Symfony2 project (PHPCS and PHP Lint).
 
     $ project hooks
 
@@ -38,3 +40,7 @@ Reload fixtures for a project
     $ project fixtures
 
 If something went wrong while using these script, you can find log inside the file app/logs/project.log
+
+## Disclamer
+
+This script use helpers from [Ciboulette](https://github.com/knplabs/ciboulette).
