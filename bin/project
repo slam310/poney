@@ -4,127 +4,17 @@ __DIR__="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 LOG_FILE="app/logs/project.log"
 
-source "$__DIR__/../lib/helpers"
-
-function install {
-  require_git
-  config
-  copy_parameters
-  cache
-  vendor install
-  database_install
-  assets_install
-  hooks_install
-}
-
-function config {
-    git config project.dir $(dirname $0)
-}
-
-function require_git {
-  if [ ! -d $( pwd )/.git ]; then
-    echo "$0 must be run at the root of a git repository"
-    exit 1
-  fi
-}
-
-function copy_parameters {
-  if [ -f 'app/config/parameters.yml.sample' ]; then
-    step "Copy <comment>parameters.yml</comment> from <comment>parameters.yml.sample</comment>"
-    cp app/config/parameters.yml.sample app/config/parameters.yml
-  elif [ -f 'app/config/parameters.ini.sample' ]; then
-    step "Copy <comment>parameters.ini</comment> from <comment>parameters.ini.sample</comment>"
-    cp app/config/parameters.ini.sample app/config/parameters.ini
-  fi
-}
-
-function vendor {
-  if [ -f 'composer.json' ]; then
-    if [[ ! `which composer.phar` && ! `which composer` && ! -f 'composer.phar' ]]; then
-        step "Download composer"
-        curl -s http://getcomposer.org/installer | php
-    fi
-
-    if [[ `which composer` ]]; then
-        step "Run <comment>composer $1</comment>" composer $1
-    else
-        step "Run <comment>php composer.phar $1</comment>" php composer.phar $1
-    fi
-  elif [ -f 'deps' ]; then
-    step "Run php bin/vendors $1" php bin/vendors $1
-  fi
-}
-
-function database_install {
-  step "Create database" php app/console doctrine:database:create
-  step "Drop schema" php app/console doctrine:schema:drop --force
-  step "Create schema" php app/console doctrine:schema:create
-  fixtures
-}
-
-function assets_install {
-  step "Install assets with symlink" php app/console assets:install web/ --symlink
-}
-
-function hooks_install {
-  config
-  if [[ -d 'bin/hooks' ]]; then
-      writeln "Installing <comment>hooks</comment>"
-
-      for hooks in $(find bin/hooks -type d -d 1); do
-          TYPE=$(basename $hooks)
-          writeln "Install <comment>$TYPE</comment> hooks inside <comment>.git/hooks/$TYPE.d</comment>"
-          cp $__DIR__/hook_dir .git/hooks/$TYPE
-          chmod +x .git/hooks/$TYPE
-          if [ -d .git/hooks/$TYPE.d ]; then
-            rm .git/hooks/$TYPE.d
-          fi
-          ln -s ../../$hooks .git/hooks/$TYPE.d
-      done
-  fi
-}
-
-function cache {
-  USER=$(whoami)
-  APACHE_USER=$(ps axho user,comm|grep -E "httpd|apache"|uniq|grep -v "root"|awk 'END {print $1}')
-
-  if [ -d app/cache ]
-  then
-    writeln "Enter your password for chmod cache and logs"
-    sudo chmod -R 7777 app/cache app/logs
-    sudo chmod +a "$USER allow delete,write,append,file_inherit,directory_inherit" app/cache app/logs
-    sudo chmod +a "$APACHE_USER allow delete,write,append,file_inherit,directory_inherit" app/cache app/logs
-
-    step "app/cache & app/logs been properly chmod'ed for $USER and $APACHE_USER"
-  fi
-}
-
-function update {
-  require_git
-  database_install
-  assets_install
-}
-
-function vendors {
-  require_git
-  cache
-  vendor update
-  assets_install
-}
-
-function fixtures {
-  step "Load fixtures" php app/console doctrine:fixtures:load --purge-with-truncate
-}
+source "$__DIR__/../lib/script"
 
 function show_help {
   writeln "<comment>Usage:</comment>"
   writeln " $( colorize "<info>$(basename $0) command</info>" )"
   echo
   writeln "<comment>Available Command:</comment>"
-  help_show_argument "<info>install</info>" "Install vendors, create database, ..."
-  help_show_argument "<info>update</info>" " Update database"
-  help_show_argument "<info>vendors</info>" "Update vendors"
-  help_show_argument "<info>hooks</info>" "Install hooks"
+  help_show_argument "<info>install</info>" " Install vendors, create database, ..."
+  help_show_argument "<info>update</info>" "  Update database"
+  help_show_argument "<info>vendors</info>" " Update vendors"
+  help_show_argument "<info>hooks</info>" "   Install hooks"
   help_show_argument "<info>fixtures</info>" "Reload fixtures"
 }
 
