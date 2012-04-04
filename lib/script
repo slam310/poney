@@ -13,11 +13,9 @@ function install {
 
 function update {
   database_install
-  assets_install
 }
 
 function vendors {
-  cache
   vendor update
   assets_install
 }
@@ -80,15 +78,16 @@ function assets_install {
 }
 
 function hooks_install {
-  if [ ! -d $( pwd )/.git ]; then
+
+  if [ -d $( pwd )/.git ]; then
     config
     if [[ -d 'bin/hooks' ]]; then
         writeln "Installing <comment>hooks</comment>"
 
         for hooks in $(find bin/hooks -type d -d 1); do
             TYPE=$(basename $hooks)
-            writeln "Install <comment>$TYPE</comment> hooks inside <comment>.git/hooks/$TYPE.d</comment>"
-            cp $__DIR__/hook_dir .git/hooks/$TYPE
+            step "Install <comment>$TYPE</comment> hooks inside <comment>.git/hooks/$TYPE.d</comment>"
+            cp $__DIR__/../bin/hook_dir .git/hooks/$TYPE
             chmod +x .git/hooks/$TYPE
             if [ -d .git/hooks/$TYPE.d ]; then
               rm .git/hooks/$TYPE.d
