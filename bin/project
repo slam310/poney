@@ -2,7 +2,7 @@
 
 __DIR__="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-LOG_FILE="app/logs/project.log"
+LOG_FILE="app/logs/poney.log"
 
 source "$__DIR__/../lib/helpers"
 
@@ -18,7 +18,7 @@ function install {
 }
 
 function config {
-    git config project.dir $(dirname $0)
+    git config poney.dir $(dirname $0)
 }
 
 function require_git {

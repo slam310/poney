@@ -1,8 +1,8 @@
 #!/bin/bash
 
-project_dir=$(git config project.dir)
+poney_dir=$(git config poney.dir)
 
-source $project_dir/../lib/helpers
+source $poney_dir/../lib/helpers
 
 LIST=$(git status --porcelain | grep -E '^[^D\?][^D\?].*\.php$' | awk '{print $2}')
 ERRORS=false
