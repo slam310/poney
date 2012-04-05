@@ -70,7 +70,7 @@ function database_install {
 }
 
 function config {
-    git config project.dir $(dirname $0)
+    git config poney.dir $(dirname $0)
 }
 
 function assets_install {

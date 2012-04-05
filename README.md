@@ -1,45 +1,45 @@
 # Project script
 
-This script provide simple method to handle a Symfony2 project, it help you to run task
+This script provide simple method to handle a Symfony2 poney, it help you to run task
 
 ## Installation
 
     cd ~/bin
-    git clone git://github.com/benji07/project.git project
+    git clone git://github.com/benji07/poney.git poney
 
-Add the project script inside your `PATH`
+Add the poney script inside your `PATH`
 
-    export PATH=~/bin/project/bin:$PATH
+    export PATH=~/bin/poney/bin:$PATH
 
 ## Usage
 
 Display help using this command
 
-    $ project
+    $ poney
 
-Install a project (create parameters file, chmod cache dir, install vendors, create database, load fixtures and install assets)
+Install a poney (create parameters file, chmod cache dir, install vendors, create database, load fixtures and install assets)
 
-    $ project install
+    $ poney install
 
-Update a project (update the database and install assets)
+Update a poney (update the database and install assets)
 
-    $ project update
+    $ poney update
 
-Update vendors of a project
+Update vendors of a poney
 
-    $ project vendors
+    $ poney vendors
 
 Install git hooks (you need to create directories named after git hooks inside bin/hooks directory, ie: bin/hooks/pre-commit/phplint).
 
-I bundle this script with 2 hooks i used on each of my Symfony2 project (PHPCS and PHP Lint).
+I bundle this script with 2 hooks i used on each of my Symfony2 poney (PHPCS and PHP Lint).
 
-    $ project hooks
+    $ poney hooks
 
-Reload fixtures for a project
+Reload fixtures for a poney
 
-    $ project fixtures
+    $ poney fixtures
 
-If something went wrong while using these script, you can find log inside the file app/logs/project.log
+If something went wrong while using these script, you can find log inside the file app/logs/poney.log
 
 ## Disclamer
 
