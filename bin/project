@@ -4,6 +4,7 @@ __DIR__="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 LOG_FILE="app/logs/poney.log"
 
+<<<<<<< HEAD
 source "$__DIR__/../lib/helpers"
 
 function install {
@@ -115,16 +116,19 @@ function vendors {
 function fixtures {
   step "Load fixtures" php app/console doctrine:fixtures:load --purge-with-truncate
 }
+=======
+source "$__DIR__/../lib/script"
+>>>>>>> 7d7f52b3111c735ea76dd86bfdfda4f12fc705ed
 
 function show_help {
   writeln "<comment>Usage:</comment>"
   writeln " $( colorize "<info>$(basename $0) command</info>" )"
   echo
   writeln "<comment>Available Command:</comment>"
-  help_show_argument "<info>install</info>" "Install vendors, create database, ..."
-  help_show_argument "<info>update</info>" " Update database"
-  help_show_argument "<info>vendors</info>" "Update vendors"
-  help_show_argument "<info>hooks</info>" "Install hooks"
+  help_show_argument "<info>install</info>" " Install vendors, create database, ..."
+  help_show_argument "<info>update</info>" "  Update database"
+  help_show_argument "<info>vendors</info>" " Update vendors"
+  help_show_argument "<info>hooks</info>" "   Install hooks"
   help_show_argument "<info>fixtures</info>" "Reload fixtures"
 }
 

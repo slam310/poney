@@ -1,4 +1,5 @@
 #!/bin/bash
+# Source: https://github.com/KnpLabs/Ciboulette/blob/master/lib/ciboulette_helpers
 
 if [ -z "$LOADED" ]; then
 
