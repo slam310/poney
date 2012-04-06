@@ -1,4 +1,4 @@
-# Project script
+# Poney script
 
 This script provide simple method to handle a Symfony2 poney, it help you to run task
 
